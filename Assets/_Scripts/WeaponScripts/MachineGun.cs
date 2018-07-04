@@ -28,7 +28,7 @@ public class MachineGun  : WeaponTemplate {
         }
     }
 
-    public override void shoot()
+    public override void autoFire()
     {
         if (cooldown >= weaponCooldown.value)
         {
@@ -37,9 +37,14 @@ public class MachineGun  : WeaponTemplate {
             Quaternion bulletRotation = bulletSpawnTransform.rotation;
             bulletRotation *= Quaternion.Euler(0, 0, -90);
             GameObject bulletGO = (GameObject)Instantiate(bulletPrefab, location, bulletRotation);
-            bulletGO.GetComponent<BulletController>().playerID = player.playerID;
+            bulletGO.GetComponent<ProjectileTemplate>().playerID = player.playerID;
             cooldown = 0;
         }
+        
+    }
+
+    public override void manualFire()
+    {
         
     }
 }

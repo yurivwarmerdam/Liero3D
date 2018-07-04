@@ -27,7 +27,9 @@ public class PlayerInput : MonoBehaviour
     private Transform gunTransform;
     private Vector3 spawnPoint;
     private WeaponTemplate weaponScript;
-    
+    private Vector3 frameMovement;
+    private Vector3 lastFrameMovement;
+
 
     private static List<GameObject> players = new List<GameObject>();
 
@@ -38,27 +40,23 @@ public class PlayerInput : MonoBehaviour
         selectedWeapon= (GameObject)Instantiate(weapon, this.gameObject.transform);
         weaponScript= selectedWeapon.GetComponent<WeaponTemplate>();
         weaponScript.player = this;
+        weaponScript.playerRB = GetComponent<Rigidbody>();
         characterController = GetComponent <CharacterController> ();
         gunTransform = selectedWeapon.transform;
         spawnPoint = this.transform.position;
         HP.value = maxHP.value;
         kills.value = 0;
         playerID=getPlayerID(this.gameObject);
+        frameMovement = Vector3.zero;
+        lastFrameMovement = Vector3.zero;
     }
-
-    public int getPlayerID(GameObject player)
-    {
-        players.Add(player);
-        return players.Count-1;
-    }
-
+    
     private void Update()
     {
         float horizontalMovement = Input.GetAxis(characterInputManager.horizontalAxis);
         float verticalAim = Input.GetAxis(characterInputManager.verticalAxis);
-        bool shoot = Input.GetButton(characterInputManager.Fire1);
 
-        //handles horizontal movement
+        //handles facing
         if (horizontalMovement < 0)
         {
             transform.rotation = Quaternion.Euler(0,180,0);
@@ -75,17 +73,13 @@ public class PlayerInput : MonoBehaviour
         }
 
         //shoot gun
-        if (shoot)
+        if (Input.GetButton(characterInputManager.Fire1))
         {
-            weaponScript.shoot();
-            /*
-            Vector3 location = bulletSpawnTransform.position;
-
-            Quaternion bulletRotation = bulletSpawnTransform.rotation;
-            bulletRotation *= Quaternion.Euler(0, 0, -90);
-            GameObject bulletGO = (GameObject)Instantiate(bulletPrefab, location, bulletRotation);
-            bulletGO.GetComponent<BulletController>().playerID = this.playerID;
-            */
+            weaponScript.autoFire();
+        }
+        if (Input.GetButtonDown(characterInputManager.Fire1))
+        {
+            weaponScript.manualFire();
         }
 
         
@@ -95,13 +89,13 @@ public class PlayerInput : MonoBehaviour
     {
         float horizontalMovement = Input.GetAxis(characterInputManager.horizontalAxis);
         bool jump = Input.GetButton(characterInputManager.Jump);
-
-        Vector3 frameMovement = Vector3.zero;
+        lastFrameMovement = frameMovement;
+        frameMovement = Vector3.zero;
 
         //TODO: change everything so vector3 movement is used and characterController.move is only called once per frame.
 
         //handles horizontal movement
-        
+
         frameMovement.x += speed * Time.deltaTime * horizontalMovement;
      
 
@@ -127,6 +121,12 @@ public class PlayerInput : MonoBehaviour
 
         frameMovement.y += verticalVelocity * Time.deltaTime;
         characterController.Move(frameMovement);
+    }
+
+    public int getPlayerID(GameObject player)
+    {
+        players.Add(player);
+        return players.Count - 1;
     }
 
     public void GetHurt(int damagingPlayer, FloatVariable damage)

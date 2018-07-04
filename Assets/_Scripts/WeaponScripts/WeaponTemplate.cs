@@ -5,7 +5,9 @@ using UnityEngine;
 public abstract class WeaponTemplate :MonoBehaviour
 {
     public PlayerInput player;
+    public Rigidbody playerRB;
 
-    abstract public void shoot();
+    abstract public void manualFire();
+    abstract public void autoFire();
 
 }
