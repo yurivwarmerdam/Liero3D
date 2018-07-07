@@ -27,7 +27,7 @@ public class HookController : ProjectileTemplate
         if (isAnchored)
         {
             distance.value = this.transform.position - player.transform.position;
-            Debug.Log(distance.value);
+            //Debug.Log(distance.value);
             player.AddForce(distance.value.normalized * Time.deltaTime * attractionForce.value);
         }
     }

@@ -85,21 +85,28 @@ public class PlayerInput : MonoBehaviour
         
     }
 
+    private float timeFalling=0;
+
     void FixedUpdate()
     {
         float horizontalMovement = Input.GetAxis(characterInputManager.horizontalAxis);
         bool jump = Input.GetButton(characterInputManager.Jump);
         lastFrameMovement = frameMovement;
         frameMovement = Vector3.zero;
+        timeFalling += Time.deltaTime;
+        verticalVelocity = 0;
 
         //TODO: change everything so vector3 movement is used and characterController.move is only called once per frame.
 
         //handles horizontal movement
 
         frameMovement.x += speed * Time.deltaTime * horizontalMovement;
-     
+
 
         //handles falling & jumping
+
+        verticalVelocity = lastFrameMovement.y * (1 / Time.deltaTime);
+
 
         if (!characterController.isGrounded)
         {
@@ -112,7 +119,11 @@ public class PlayerInput : MonoBehaviour
                 verticalVelocity -= gravity * Time.deltaTime;
             }
         }
-        else { verticalVelocity = 0; }
+        else
+        {
+            verticalVelocity = 0;
+            timeFalling = 0;
+        }
 
         if (jump && characterController.isGrounded)
         {
@@ -121,6 +132,8 @@ public class PlayerInput : MonoBehaviour
 
         frameMovement.y += verticalVelocity * Time.deltaTime;
         characterController.Move(frameMovement);
+        Debug.Log(frameMovement.y +" "+verticalVelocity +" "+ timeFalling);
+
     }
 
     public int getPlayerID(GameObject player)
